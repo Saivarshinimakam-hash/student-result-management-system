@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Page heading row with Add Student button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-speedometer2 fs-3 text-primary me-3"></i>
+        <div>
+            <h2 class="mb-0">Admin Dashboard</h2>
+            <small class="text-muted">Manage students and results from here</small>
+        </div>
+    </div>
+    <a href="/admin/add-student" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill me-1"></i>Add Student
+    </a>
+</div>
+
+<!-- ===== STUDENTS TABLE ===== -->
+{% if students %}
+    <!-- Summary badge -->
+    <p class="text-muted mb-2">
+        Total students: <strong>{{ students|length }}</strong>
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle bg-white shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th>#</th>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Class</th>
+                    <th>Section</th>
+                    <th>Added On</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <!-- loop.index gives 1, 2, 3... automatically -->
+                    <td>{{ loop.index }}</td>
+                    <td><span class="badge bg-secondary">{{ student['student_id'] }}</span></td>
+                    <td>{{ student['name'] }}</td>
+                    <td>{{ student['class_name'] }}</td>
+                    <td>{{ student['section'] }}</td>
+                    <!-- student['created_at'] is a datetime string; [:10] trims to YYYY-MM-DD -->
+                    <td>{{ student['created_at'][:10] }}</td>
+                    <td class="text-center">
+                        <!-- Manage Marks button -->
+                        <a href="/admin/marks/{{ student['student_id'] }}"
+                           class="btn btn-sm btn-outline-success me-1">
+                            <i class="bi bi-journal-text"></i> Marks
+                        </a>
+
+                        <!-- Edit button -->
+                        <a href="/admin/edit-student/{{ student['student_id'] }}"
+                           class="btn btn-sm btn-outline-primary me-1">
+                            <i class="bi bi-pencil-fill"></i> Edit
+                        </a>
+
+                        <!-- Delete button — triggers a confirmation modal -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                data-student-id="{{ student['student_id'] }}"
+                                data-student-name="{{ student['name'] }}">
+                            <i class="bi bi-trash-fill"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <!-- Shown when no students exist yet -->
+    <div class="alert alert-info mt-3">
+        <i class="bi bi-info-circle me-2"></i>
+        No students added yet.
+        <a href="/admin/add-student" class="alert-link">Add the first student</a>.
+    </div>
+{% endif %}
+
+
+<!-- ===== DELETE CONFIRMATION MODAL ===== -->
+<!-- Bootstrap modal — appears as an overlay when Delete is clicked -->
+<!-- The actual delete form is inside here so we can submit it on confirm -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to delete student
+                    <strong id="modalStudentName"></strong>
+                    (ID: <strong id="modalStudentId"></strong>)?
+                </p>
+                <p class="text-danger mb-0">
+                    <small>
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        This will also delete all their marks. This action cannot be undone.
+                    </small>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <!-- Cancel — just closes the modal, does nothing -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <!-- Confirm delete — submits the hidden form below -->
+                <form id="deleteForm" method="POST" action="" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill me-1"></i>Yes, Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- ===== END DELETE MODAL ===== -->
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // This script runs when the Delete modal is about to be shown.
+    // It reads the student ID and name from the button's data attributes
+    // and fills them into the modal, so the admin sees the right name.
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        // 'event.relatedTarget' is the button that was clicked
+        const button = event.relatedTarget;
+
+        const studentId   = button.getAttribute('data-student-id');
+        const studentName = button.getAttribute('data-student-name');
+
+        // Fill the modal text with the student's details
+        document.getElementById('modalStudentId').textContent   = studentId;
+        document.getElementById('modalStudentName').textContent = studentName;
+
+        // Set the form action to the correct delete URL for this student
+        document.getElementById('deleteForm').action = '/admin/delete-student/' + studentId;
+    });
+</script>
+{% endblock %}

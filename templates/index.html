@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+
+        <!-- Hero card -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body p-5 text-center">
+
+                <!-- Icon and title -->
+                <i class="bi bi-mortarboard-fill text-primary" style="font-size: 3rem;"></i>
+                <h2 class="mt-3 mb-1 fw-bold">Student Result Management System</h2>
+                <p class="text-muted mb-4">
+                    Enter your Student ID below to view your result.
+                </p>
+
+                <!-- Search form — submits as GET to /result/<student_id> -->
+                <!-- We use a GET form so the student ID appears in the URL,
+                     making it easy to bookmark or share a result link. -->
+                <form method="GET" action="/result" id="searchForm">
+                    <div class="input-group input-group-lg mb-3">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="student_id"
+                            id="student_id"
+                            placeholder="e.g. STU001"
+                            required
+                            autofocus
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-search me-2"></i>Search Result
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+        <!-- Helper text below the card -->
+        <p class="text-center text-muted mt-3">
+            <small>
+                <i class="bi bi-info-circle me-1"></i>
+                Your Student ID was provided by your institution.
+            </small>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

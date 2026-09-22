@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Marks — {{ student['name'] }}{% endblock %}
+
+{% block content %}
+
+<!-- Back link -->
+<a href="/admin/dashboard" class="text-decoration-none text-muted d-inline-flex align-items-center mb-3">
+    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+</a>
+
+<!-- Page heading with student info -->
+<div class="d-flex align-items-center mb-4">
+    <i class="bi bi-journal-text fs-3 text-success me-3"></i>
+    <div>
+        <h2 class="mb-0">Manage Marks</h2>
+        <small class="text-muted">
+            {{ student['name'] }}
+            &nbsp;<span class="badge bg-secondary">{{ student['student_id'] }}</span>
+            &nbsp;{{ student['class_name'] }} &mdash; Section {{ student['section'] }}
+        </small>
+    </div>
+</div>
+
+
+<!-- ===================================================================== -->
+<!-- SECTION 1: Existing marks table                                        -->
+<!-- ===================================================================== -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white fw-semibold">
+        <i class="bi bi-list-check me-2"></i>Current Marks
+    </div>
+    <div class="card-body p-0">
+
+        {% if marks %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Subject</th>
+                        <th class="text-center">Marks Obtained</th>
+                        <th class="text-center">Max Marks</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mark in marks %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ mark['subject'] }}</td>
+                        <td class="text-center">{{ mark['marks_obtained'] }}</td>
+                        <td class="text-center">{{ mark['max_marks'] }}</td>
+                        <td class="text-center">
+                            <!-- Edit: loads this page again with edit_mark pre-filled -->
+                            <a href="/admin/marks/{{ student['student_id'] }}?edit={{ mark['id'] }}"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil-fill"></i> Edit
+                            </a>
+
+                            <!-- Delete: triggers confirmation modal -->
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteMarkModal"
+                                    data-mark-id="{{ mark['id'] }}"
+                                    data-subject="{{ mark['subject'] }}">
+                                <i class="bi bi-trash-fill"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-3 text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            No marks added yet for this student. Use the form below to add subjects.
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+<!-- ===================================================================== -->
+<!-- SECTION 2: Result Summary                                              -->
+<!-- result.html is a reusable partial — included here with one line.      -->
+<!-- It receives 'result' and 'student' from the template context.         -->
+<!-- ===================================================================== -->
+{% include 'result.html' %}
+
+
+<!-- ===================================================================== -->
+<!-- SECTION 3: Add / Edit mark form                                        -->
+<!-- When the admin clicks Edit on a row, edit_mark is passed by the route  -->
+<!-- and the form is pre-filled. Otherwise it shows a blank Add form.       -->
+<!-- ===================================================================== -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header fw-semibold
+        {% if edit_mark %}bg-primary text-white{% else %}bg-light{% endif %}">
+        {% if edit_mark %}
+            <i class="bi bi-pencil-fill me-2"></i>Edit Subject Mark
+        {% else %}
+            <i class="bi bi-plus-circle me-2"></i>Add New Subject Mark
+        {% endif %}
+    </div>
+    <div class="card-body">
+
+        <!-- The form action changes depending on whether we are adding or editing -->
+        {% if edit_mark %}
+            <form method="POST" action="/admin/marks/{{ student['student_id'] }}/edit/{{ edit_mark['id'] }}">
+        {% else %}
+            <form method="POST" action="/admin/marks/{{ student['student_id'] }}/add">
+        {% endif %}
+
+            <div class="row g-3 align-items-end">
+
+                <!-- Subject name -->
+                <div class="col-md-4">
+                    <label for="subject" class="form-label fw-semibold">
+                        Subject <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="subject"
+                        name="subject"
+                        placeholder="e.g. Mathematics"
+                        required
+                        value="{{ edit_mark['subject'] if edit_mark else '' }}"
+                    >
+                </div>
+
+                <!-- Marks obtained -->
+                <div class="col-md-3">
+                    <label for="marks_obtained" class="form-label fw-semibold">
+                        Marks Obtained <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="marks_obtained"
+                        name="marks_obtained"
+                        placeholder="e.g. 78"
+                        required
+                        min="0"
+                        value="{{ edit_mark['marks_obtained'] if edit_mark else '' }}"
+                    >
+                </div>
+
+                <!-- Max marks -->
+                <div class="col-md-3">
+                    <label for="max_marks" class="form-label fw-semibold">
+                        Max Marks <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="max_marks"
+                        name="max_marks"
+                        placeholder="e.g. 100"
+                        required
+                        min="1"
+                        value="{{ edit_mark['max_marks'] if edit_mark else 100 }}"
+                    >
+                    <!-- Default value is 100 for new rows -->
+                </div>
+
+                <!-- Submit button -->
+                <div class="col-md-2">
+                    <button type="submit" class="btn w-100
+                        {% if edit_mark %}btn-primary{% else %}btn-success{% endif %}">
+                        {% if edit_mark %}
+                            <i class="bi bi-check-circle me-1"></i>Save
+                        {% else %}
+                            <i class="bi bi-plus-circle me-1"></i>Add
+                        {% endif %}
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Cancel edit link — only shown when in edit mode -->
+            {% if edit_mark %}
+            <div class="mt-3">
+                <a href="/admin/marks/{{ student['student_id'] }}"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancel Edit
+                </a>
+            </div>
+            {% endif %}
+
+        </form>
+
+        <!-- Validation hint text shown below the form -->
+        <div class="mt-2 text-muted">
+            <small>
+                <i class="bi bi-info-circle me-1"></i>
+                Marks obtained must be between 0 and Max Marks.
+                Max Marks must be greater than 0.
+            </small>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ===================================================================== -->
+<!-- SECTION 4: Delete Mark Confirmation Modal                              -->
+<!-- ===================================================================== -->
+<div class="modal fade" id="deleteMarkModal" tabindex="-1"
+     aria-labelledby="deleteMarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteMarkModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to delete the mark for
+                    <strong id="modalSubjectName"></strong>?
+                </p>
+                <p class="text-danger mb-0">
+                    <small>
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        This cannot be undone.
+                    </small>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cancel</button>
+                <!-- Form posts to the delete route with the correct mark id -->
+                <form id="deleteMarkForm" method="POST" action="" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill me-1"></i>Yes, Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- ===================================================================== -->
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // Populate the delete modal with the correct subject name and form action
+    const deleteMarkModal = document.getElementById('deleteMarkModal');
+    deleteMarkModal.addEventListener('show.bs.modal', function (event) {
+        const button  = event.relatedTarget;
+        const markId  = button.getAttribute('data-mark-id');
+        const subject = button.getAttribute('data-subject');
+
+        document.getElementById('modalSubjectName').textContent = subject;
+        document.getElementById('deleteMarkForm').action =
+            '/admin/marks/{{ student["student_id"] }}/delete/' + markId;
+    });
+</script>
+{% endblock %}

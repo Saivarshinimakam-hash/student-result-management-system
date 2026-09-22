@@ -1,0 +1,136 @@
+<!--
+    result.html - reusable result summary card.
+
+    This file is NOT a full page. It is included inside other pages using
+    the Jinja2 include tag in the parent template.
+
+    It expects two variables to be available in the template context:
+        result  - the dictionary returned by calculate_result(), or None
+        student - the student row (used for name / ID in the heading)
+-->
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header fw-semibold
+        {% if result %}
+            {% if result['status'] == 'Pass' %}bg-success text-white
+            {% else %}bg-danger text-white
+            {% endif %}
+        {% else %}
+            bg-secondary text-white
+        {% endif %}
+    ">
+        <i class="bi bi-bar-chart-fill me-2"></i>Result Summary
+    </div>
+
+    <div class="card-body">
+
+        {% if result %}
+        <!-- ============================================================ -->
+        <!-- Result is available — show the full summary                  -->
+        <!-- ============================================================ -->
+
+        <!-- Pass / Fail badge — large and prominent -->
+        <div class="text-center mb-4">
+            {% if result['status'] == 'Pass' %}
+                <span class="badge bg-success fs-4 px-4 py-2">
+                    <i class="bi bi-check-circle-fill me-2"></i>PASS
+                </span>
+            {% else %}
+                <span class="badge bg-danger fs-4 px-4 py-2">
+                    <i class="bi bi-x-circle-fill me-2"></i>FAIL
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Four summary stats in a responsive grid -->
+        <div class="row g-3 text-center mb-3">
+
+            <!-- Total Marks -->
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">Total Marks</div>
+                    <div class="fw-bold fs-5">
+                        {{ result['total_obtained'] }} / {{ result['total_max'] }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Percentage -->
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">Percentage</div>
+                    <div class="fw-bold fs-5">{{ result['percentage'] }}%</div>
+                </div>
+            </div>
+
+            <!-- Grade -->
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">Grade</div>
+                    <!--
+                        Grade colour:
+                        A → success (green), B → primary (blue),
+                        C → info (teal),     D → warning (yellow),
+                        F → danger (red)
+                    -->
+                    <div class="fw-bold fs-5
+                        {% if result['grade'] == 'A' %}text-success
+                        {% elif result['grade'] == 'B' %}text-primary
+                        {% elif result['grade'] == 'C' %}text-info
+                        {% elif result['grade'] == 'D' %}text-warning
+                        {% else %}text-danger
+                        {% endif %}
+                    ">
+                        {{ result['grade'] }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-6 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <div class="text-muted small mb-1">Status</div>
+                    <div class="fw-bold fs-5
+                        {% if result['status'] == 'Pass' %}text-success
+                        {% else %}text-danger{% endif %}
+                    ">
+                        {{ result['status'] }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Grade legend — shows what each grade means -->
+        <div class="text-muted mt-2" style="font-size: 0.82rem;">
+            <strong>Grade scale:</strong>
+            A &ge;90%&nbsp;&nbsp;
+            B &ge;75%&nbsp;&nbsp;
+            C &ge;60%&nbsp;&nbsp;
+            D &ge;45%&nbsp;&nbsp;
+            F &lt;45%
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <strong>Pass criteria:</strong> &ge;35 marks in every subject
+        </div>
+
+        <!-- Warning: list subjects where the student scored below 35 -->
+        {% if result['failed_subjects'] %}
+        <div class="alert alert-warning mt-3 mb-0 py-2">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Below pass mark (35) in:</strong>
+            {{ result['failed_subjects'] | join(', ') }}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- ============================================================ -->
+        <!-- No marks entered yet — cannot calculate a result             -->
+        <!-- ============================================================ -->
+        <div class="text-center text-muted py-3">
+            <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+            No marks have been recorded for this student yet.
+        </div>
+        {% endif %}
+
+    </div>
+</div>

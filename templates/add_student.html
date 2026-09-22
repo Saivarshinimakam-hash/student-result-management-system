@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Add Student{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+
+        <!-- Back link -->
+        <a href="/admin/dashboard" class="text-decoration-none text-muted d-inline-flex align-items-center mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h4 class="card-title mb-4">
+                    <i class="bi bi-person-plus-fill text-primary me-2"></i>Add New Student
+                </h4>
+
+                <!-- method="POST" sends form data to the server -->
+                <!-- action="/admin/add-student" tells Flask which route handles it -->
+                <form method="POST" action="/admin/add-student">
+
+                    <!-- Student ID -->
+                    <!-- The value attribute re-fills the field if the form was rejected (e.g. duplicate ID) -->
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label fw-semibold">
+                            Student ID <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="student_id"
+                            name="student_id"
+                            placeholder="e.g. STU001"
+                            required
+                            autofocus
+                            value="{{ form_data.student_id if form_data else '' }}"
+                        >
+                        <div class="form-text">Must be unique. Example: STU001, 2024CS01</div>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-semibold">
+                            Full Name <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="name"
+                            name="name"
+                            placeholder="e.g. Ananya Sharma"
+                            required
+                            value="{{ form_data.name if form_data else '' }}"
+                        >
+                    </div>
+
+                    <!-- Class -->
+                    <div class="mb-3">
+                        <label for="class_name" class="form-label fw-semibold">
+                            Class <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="class_name"
+                            name="class_name"
+                            placeholder="e.g. 10th Grade, Class 12"
+                            required
+                            value="{{ form_data.class_name if form_data else '' }}"
+                        >
+                    </div>
+
+                    <!-- Section -->
+                    <div class="mb-3">
+                        <label for="section" class="form-label fw-semibold">
+                            Section <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="section"
+                            name="section"
+                            placeholder="e.g. A, B, C"
+                            required
+                            value="{{ form_data.section if form_data else '' }}"
+                        >
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Add Student
+                        </button>
+                        <a href="/admin/dashboard" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

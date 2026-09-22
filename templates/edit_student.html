@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+
+        <!-- Back link -->
+        <a href="/admin/dashboard" class="text-decoration-none text-muted d-inline-flex align-items-center mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h4 class="card-title mb-1">
+                    <i class="bi bi-pencil-fill text-primary me-2"></i>Edit Student
+                </h4>
+                <!-- Show which student is being edited -->
+                <p class="text-muted mb-4">
+                    Editing record for <strong>{{ student['name'] }}</strong>
+                    (ID: <span class="badge bg-secondary">{{ student['student_id'] }}</span>)
+                </p>
+
+                <!-- The form posts back to the same edit URL -->
+                <form method="POST" action="/admin/edit-student/{{ student['student_id'] }}">
+
+                    <!-- Student ID — shown as read-only, cannot be changed -->
+                    <!-- Changing the ID would break links to their marks records -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Student ID</label>
+                        <input
+                            type="text"
+                            class="form-control bg-light"
+                            value="{{ student['student_id'] }}"
+                            disabled
+                        >
+                        <div class="form-text">Student ID cannot be changed.</div>
+                    </div>
+
+                    <!-- Full Name — pre-filled with current value -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-semibold">
+                            Full Name <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="name"
+                            name="name"
+                            required
+                            value="{{ student['name'] }}"
+                        >
+                    </div>
+
+                    <!-- Class — pre-filled with current value -->
+                    <div class="mb-3">
+                        <label for="class_name" class="form-label fw-semibold">
+                            Class <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="class_name"
+                            name="class_name"
+                            required
+                            value="{{ student['class_name'] }}"
+                        >
+                    </div>
+
+                    <!-- Section — pre-filled with current value -->
+                    <div class="mb-3">
+                        <label for="section" class="form-label fw-semibold">
+                            Section <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="section"
+                            name="section"
+                            required
+                            value="{{ student['section'] }}"
+                        >
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Save Changes
+                        </button>
+                        <a href="/admin/dashboard" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
